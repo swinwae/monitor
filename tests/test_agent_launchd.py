@@ -1,6 +1,6 @@
 import json
 
-from agent.collectors.launchd import collect_plist, launchctl_list
+from agent.collectors.launchd import collect_plist, launchctl_list, launchd_status
 from agent.runtime import CommandResult
 
 
@@ -48,3 +48,18 @@ def test_collect_plist(tmp_path):
     assert item["meta"]["program_arguments"] == ["/usr/bin/python3", "worker.py"]
     assert "ERROR bad" in item["recent_logs"]
 
+
+def test_scheduled_launchd_job_is_healthy_when_last_run_succeeded():
+    data = {"StartInterval": 1800}
+    state = {"pid": None, "status": 0}
+    details = {"state": "not running", "last_exit_code": 0}
+
+    assert launchd_status(data, state, details) == "up"
+
+
+def test_scheduled_launchd_job_is_down_when_last_run_failed():
+    data = {"StartInterval": 1800}
+    state = {"pid": None, "status": 1}
+    details = {"state": "not running", "last_exit_code": 1}
+
+    assert launchd_status(data, state, details) == "down"

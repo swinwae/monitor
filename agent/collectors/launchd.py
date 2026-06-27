@@ -50,13 +50,14 @@ def collect_plist(
     label = data.get("Label") or plist.stem
     state = labels.get(label, {})
     details = launchctl_print(runner, label)
+    status = launchd_status(data, state, details)
     stdout_log = tail_file(data.get("StandardOutPath"), log_lines)
     stderr_log = tail_file(data.get("StandardErrorPath"), log_lines)
     return {
         "type": "launchd",
         "name": label,
         "display_name": label,
-        "status": "up" if state.get("pid") else "down",
+        "status": status,
         "restart_count": details.get("runs") or 0,
         "last_exit_code": details.get("last_exit_code"),
         "enabled": bool(data.get("RunAtLoad") or data.get("KeepAlive")),
@@ -68,8 +69,11 @@ def collect_plist(
             "stderr_path": data.get("StandardErrorPath"),
             "run_at_load": data.get("RunAtLoad"),
             "keep_alive": data.get("KeepAlive"),
+            "start_interval": data.get("StartInterval"),
+            "start_calendar_interval": data.get("StartCalendarInterval"),
             "environment": data.get("EnvironmentVariables"),
             "launchctl_status": state.get("status"),
+            "launchctl_state": details.get("state"),
         },
         "recent_logs": "\n".join(x for x in [stdout_log, stderr_log] if x),
     }
@@ -101,9 +105,19 @@ def launchctl_print(runner: CommandRunner, label: str) -> dict:
             text = result.stdout
             break
     return {
+        "state": _match_text(text, r"\bstate\s*=\s*([^\n]+)"),
         "runs": _match_int(text, r"\bruns\s*=\s*(\d+)"),
         "last_exit_code": _match_int(text, r"\blast exit code\s*=\s*(-?\d+)"),
     }
+
+
+def launchd_status(data: dict, state: dict, details: dict) -> str:
+    if state.get("pid"):
+        return "up"
+    is_scheduled = bool(data.get("StartInterval") or data.get("StartCalendarInterval"))
+    if is_scheduled and details.get("last_exit_code") == 0:
+        return "up"
+    return "down"
 
 
 def _match_int(text: str, pattern: str) -> int | None:
@@ -111,3 +125,10 @@ def _match_int(text: str, pattern: str) -> int | None:
     if not match:
         return None
     return int(match.group(1))
+
+
+def _match_text(text: str, pattern: str) -> str | None:
+    match = re.search(pattern, text)
+    if not match:
+        return None
+    return match.group(1).strip()
