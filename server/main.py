@@ -1,9 +1,14 @@
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Depends
+from pathlib import Path
+from fastapi import FastAPI, Depends, Request
+from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 from sqlmodel import Session
 from server.deps import get_session, now, require_token, engine
 from server.schemas import ReportIn
 from server.ingest import ingest_report
+from server import queries
 
 
 @asynccontextmanager
@@ -14,6 +19,17 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Monitor", lifespan=lifespan)
+
+_BASE = Path(__file__).parent
+templates = Jinja2Templates(directory=str(_BASE / "templates"))
+app.mount("/static", StaticFiles(directory=str(_BASE / "static")), name="static")
+
+
+@app.get("/", response_class=HTMLResponse)
+def page_overview(request: Request, session: Session = Depends(get_session)):
+    """渲染全局概览页"""
+    ov = queries.overview(session, now())
+    return templates.TemplateResponse(request, "overview.html", {"ov": ov})
 
 
 @app.get("/api/health")

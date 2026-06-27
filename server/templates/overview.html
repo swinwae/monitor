@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}概览 · Monitor{% endblock %}
+{% block body %}
+<h1 class="text-2xl font-bold mb-4">全局概览</h1>
+<div id="summary" class="flex gap-4 mb-6">
+  <div class="bg-white rounded shadow px-4 py-3">关注 <b>{{ ov.summary.total }}</b></div>
+  <div class="bg-white rounded shadow px-4 py-3 text-green-600">运行 <b>{{ ov.summary.up }}</b></div>
+  <div class="bg-white rounded shadow px-4 py-3 text-red-600">挂了 <b>{{ ov.summary.down }}</b></div>
+  <div class="bg-white rounded shadow px-4 py-3 text-slate-400">失联 <b>{{ ov.summary.unknown }}</b></div>
+  <div class="bg-white rounded shadow px-4 py-3 text-amber-600">报错 <b>{{ ov.summary.errors }}</b></div>
+  <a href="/tunnels" class="bg-white rounded shadow px-4 py-3">隧道在线 <b>{{ ov.tunnels_online }}</b></a>
+</div>
+{% for h in ov.hosts %}
+<section class="mb-6">
+  <h2 class="text-lg font-semibold mb-2">{{ h.name }} <span class="text-xs text-slate-400">{{ h.platform }}</span>
+    <a href="/hosts/{{ h.id }}" class="text-sm text-blue-600 ml-2">发现…</a></h2>
+  <table class="w-full bg-white rounded shadow text-sm">
+    <thead><tr class="text-left border-b">
+      <th class="p-2">状态</th><th>名称</th><th>类型</th><th>重启</th><th>报错</th><th>最后上报</th></tr></thead>
+    <tbody>
+    {% for m in h.monitors %}
+      <tr class="border-b hover:bg-slate-50">
+        <td class="p-2">{{ {"up":"🟢","down":"🔴","unknown":"⚪"}[m.eff_status] }}</td>
+        <td><a class="text-blue-600" href="/monitors/{{ m.id }}">{{ m.name }}</a></td>
+        <td>{{ m.type }}</td>
+        <td class="{{ 'text-red-600 font-bold' if m.restart_count >= 10 else '' }}">{{ m.restart_count }}</td>
+        <td class="{{ 'text-amber-600' if m.error_count else '' }}">{{ m.error_count }}</td>
+        <td class="text-slate-400">{{ m.last_report_at }}</td>
+      </tr>
+    {% else %}
+      <tr><td colspan="6" class="p-2 text-slate-400">暂无关注对象,去"发现…"添加</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endfor %}
+{% endblock %}
+{% block scripts %}<script src="/static/app.js"></script>{% endblock %}
