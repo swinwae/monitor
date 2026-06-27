@@ -15,6 +15,8 @@ venv/
 config.toml
 agent/config.toml
 server/config.toml
+server.env
+.env
 
 # 部署文档(含服务器地址等敏感信息)
 deploy.md
