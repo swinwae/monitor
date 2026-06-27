@@ -3,12 +3,12 @@
 {% block body %}
 <h1 class="text-2xl font-bold mb-4">全局概览</h1>
 <div id="summary" class="flex gap-4 mb-6">
-  <div class="bg-white rounded shadow px-4 py-3">关注 <b>{{ ov.summary.total }}</b></div>
-  <div class="bg-white rounded shadow px-4 py-3 text-green-600">运行 <b>{{ ov.summary.up }}</b></div>
-  <div class="bg-white rounded shadow px-4 py-3 text-red-600">挂了 <b>{{ ov.summary.down }}</b></div>
-  <div class="bg-white rounded shadow px-4 py-3 text-slate-400">失联 <b>{{ ov.summary.unknown }}</b></div>
-  <div class="bg-white rounded shadow px-4 py-3 text-amber-600">报错 <b>{{ ov.summary.errors }}</b></div>
-  <a href="/tunnels" class="bg-white rounded shadow px-4 py-3">隧道在线 <b>{{ ov.tunnels_online }}</b></a>
+  <div class="bg-white rounded shadow px-4 py-3">关注 <b id="sum-total">{{ ov.summary.total }}</b></div>
+  <div class="bg-white rounded shadow px-4 py-3 text-green-600">运行 <b id="sum-up">{{ ov.summary.up }}</b></div>
+  <div class="bg-white rounded shadow px-4 py-3 text-red-600">挂了 <b id="sum-down">{{ ov.summary.down }}</b></div>
+  <div class="bg-white rounded shadow px-4 py-3 text-slate-400">失联 <b id="sum-unknown">{{ ov.summary.unknown }}</b></div>
+  <div class="bg-white rounded shadow px-4 py-3 text-amber-600">报错 <b id="sum-errors">{{ ov.summary.errors }}</b></div>
+  <a href="/tunnels" class="bg-white rounded shadow px-4 py-3">隧道在线 <b id="sum-tunnels">{{ ov.tunnels_online }}</b></a>
 </div>
 {% for h in ov.hosts %}
 <section class="mb-6">

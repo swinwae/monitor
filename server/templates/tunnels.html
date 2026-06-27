@@ -5,7 +5,7 @@
 <table class="w-full bg-white rounded shadow text-sm">
   <thead><tr class="text-left border-b">
     <th class="p-2">状态</th><th>隧道</th><th>连接</th><th>协议</th>
-    <th>暴露端口</th><th>客户端</th><th>连接数</th><th>今日流量(↓/↑)</th></tr></thead>
+    <th>暴露端口</th><th>连接数</th><th>今日流量(↓/↑)</th></tr></thead>
   <tbody>
   {% for t in tunnels %}
     <tr class="border-b">
@@ -14,12 +14,11 @@
       <td class="text-slate-500">{{ t.client_addr or "?" }} → {{ t.frps_host_id }}</td>
       <td>{{ t.proto }}</td>
       <td>{{ t.remote_port or "—" }}</td>
-      <td>{{ t.client_addr or "—" }}</td>
       <td>{{ t.conn_count }}</td>
       <td>{{ t.traffic_in }}/{{ t.traffic_out }}</td>
     </tr>
   {% else %}
-    <tr><td colspan="8" class="p-2 text-slate-400">暂无隧道数据</td></tr>
+    <tr><td colspan="7" class="p-2 text-slate-400">暂无隧道数据</td></tr>
   {% endfor %}
   </tbody>
 </table>
