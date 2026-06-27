@@ -7,3 +7,17 @@ async function refresh() {
   } catch (e) { /* 忽略瞬时网络错误 */ }
 }
 setInterval(refresh, 10000);
+
+// 切换关注状态,调用 watch API 后刷新页面
+async function toggleWatch(btn) {
+  const mid = btn.dataset.mid;
+  const next = btn.dataset.watched !== "true";
+  await fetch(`/api/monitors/${mid}/watch`, {
+    method: "POST", headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({watched: next}),
+  });
+  location.reload();
+}
+document.addEventListener("click", (e) => {
+  if (e.target.classList.contains("watch-btn")) toggleWatch(e.target);
+});

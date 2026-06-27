@@ -49,5 +49,12 @@ def report(
     return {"ok": True}
 
 
+@app.get("/hosts/{host_id}", response_class=HTMLResponse)
+def page_host(host_id: str, request: Request, session: Session = Depends(get_session)):
+    """渲染发现页:列出某 host 全部监控对象(含未关注)"""
+    rows = queries.host_all(session, host_id, now())
+    return templates.TemplateResponse(request, "host.html", {"host_id": host_id, "rows": rows})
+
+
 from server.api import router as api_router
 app.include_router(api_router)
