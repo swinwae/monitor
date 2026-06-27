@@ -9,7 +9,7 @@ import urllib.request
 
 from agent.collectors import docker, launchd, process, systemd
 from agent.config import AgentConfig, load_config
-from agent.probes import frp
+from agent.probes import clash, frp
 from agent.runtime import CommandRunner
 
 
@@ -28,6 +28,9 @@ def build_report(config: AgentConfig, runner: CommandRunner | None = None) -> di
     if config.frp.enabled:
         tunnels = frp.collect(runner, config.frp, config.server.timeout)
 
+    if config.clash.enabled:
+        merge_clash_runtime(monitors, clash.collect(config.clash, config.server.timeout))
+
     return {
         "host": {
             "id": config.host.id,
@@ -37,6 +40,35 @@ def build_report(config: AgentConfig, runner: CommandRunner | None = None) -> di
         "monitors": monitors,
         "tunnels": tunnels,
     }
+
+
+def merge_clash_runtime(monitors: list[dict], runtime_monitors: list[dict]) -> None:
+    if not runtime_monitors:
+        return
+    runtime = runtime_monitors[0]
+    target = find_clash_monitor(monitors)
+    if target is None:
+        monitors.extend(runtime_monitors)
+        return
+    clash_meta = runtime.get("meta", {})
+    target.setdefault("meta", {})
+    target["meta"]["clash"] = clash_meta
+    active_node = clash_meta.get("active_node")
+    if active_node:
+        target["display_name"] = f"Clash Verge · {active_node}"
+    logs = [target.get("recent_logs", ""), runtime.get("recent_logs", "")]
+    target["recent_logs"] = "\n".join(x for x in logs if x)
+    if runtime.get("status") == "down":
+        target["status"] = "down"
+
+
+def find_clash_monitor(monitors: list[dict]) -> dict | None:
+    for item in monitors:
+        name = str(item.get("name", "")).lower()
+        display_name = str(item.get("display_name", "")).lower()
+        if name == "clash-verge" or display_name == "clash verge":
+            return item
+    return None
 
 
 def post_report(config: AgentConfig, report: dict) -> tuple[bool, str]:
@@ -88,4 +120,3 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

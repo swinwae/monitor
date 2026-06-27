@@ -39,6 +39,13 @@ class FrpConfig:
 
 
 @dataclass
+class ClashConfig:
+    enabled: bool = False
+    unix_socket: str = "/tmp/verge/verge-mihomo.sock"
+    main_group: str = "Proxies"
+
+
+@dataclass
 class AgentConfig:
     host: HostConfig
     server: ServerConfig
@@ -49,6 +56,7 @@ class AgentConfig:
     collect_docker: bool = True
     processes: list[ProcessConfig] = field(default_factory=list)
     frp: FrpConfig = field(default_factory=FrpConfig)
+    clash: ClashConfig = field(default_factory=ClashConfig)
 
 
 def _default_platform() -> str:
@@ -91,6 +99,7 @@ def load_config(path: str | Path) -> AgentConfig:
         for item in raw.get("processes", [])
     ]
     frp_raw = raw.get("frp", {})
+    clash_raw = raw.get("clash", {})
 
     return AgentConfig(
         host=host,
@@ -108,6 +117,11 @@ def load_config(path: str | Path) -> AgentConfig:
             username=frp_raw.get("username"),
             password=frp_raw.get("password"),
         ),
+        clash=ClashConfig(
+            enabled=bool(clash_raw.get("enabled", False)),
+            unix_socket=clash_raw.get("unix_socket", "/tmp/verge/verge-mihomo.sock"),
+            main_group=clash_raw.get("main_group", "Proxies"),
+        ),
     )
 
 
@@ -117,4 +131,3 @@ def _as_list(value) -> list[str]:
     if isinstance(value, str):
         return [value]
     return list(value)
-

@@ -32,3 +32,9 @@ service_name = "frps.service"
 # admin_url = "http://127.0.0.1:7500"
 # username = "admin"
 # password = "admin"
+
+[clash]
+enabled = false
+# Clash Verge/Mihomo 默认 Unix socket。开启后会额外上报当前模式、策略组与实际生效节点。
+unix_socket = "/tmp/verge/verge-mihomo.sock"
+main_group = "Proxies"

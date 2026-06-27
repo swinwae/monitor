@@ -42,6 +42,7 @@ cp agent/config.example.toml agent/config.toml
 - `[collectors]`: 是否开启 systemd / launchd / docker 自动发现
 - `[[processes]]`: 裸进程声明式监控,填写 `pattern` 与日志路径
 - `[frp]`: ECS 上运行 frps 时开启,默认从 `frps.service` 自动发现 admin API 配置
+- `[clash]`: 本机运行 Clash Verge/Mihomo 时开启,采集当前模式、主策略组、当前选择与实际生效节点
 
 ### 本地调试
 
