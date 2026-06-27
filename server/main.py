@@ -71,5 +71,12 @@ def page_monitor(mid: str, request: Request, session: Session = Depends(get_sess
     return templates.TemplateResponse(request, "monitor.html", {"d": d, "log_lines": log_lines})
 
 
+@app.get("/tunnels", response_class=HTMLResponse)
+def page_tunnels(request: Request, session: Session = Depends(get_session)):
+    """渲染隧道拓扑页:列出 frps 下所有隧道"""
+    ts = queries.tunnels(session, now())
+    return templates.TemplateResponse(request, "tunnels.html", {"tunnels": ts})
+
+
 from server.api import router as api_router
 app.include_router(api_router)
