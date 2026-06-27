@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+
+# macOS
+.DS_Store
+
+# 数据库与本地配置(含密钥)
+*.db
+*.sqlite3
+config.toml
+agent/config.toml
+server/config.toml
+
+# 部署文档(含服务器地址等敏感信息)
+deploy.md
