@@ -26,4 +26,45 @@ python -m pytest -v
 因此，面板必须部署在受信内网或反向代理（建议 HTTPS + IP 白名单/Basic Auth）之后，**切勿将端口直接暴露到公网**。若需公网访问，请在 Nginx/Caddy 层加鉴权。
 
 ## agent
-见 Plan 2(`docs/superpowers/plans/*-monitor-agent.md`)。
+
+agent 为纯 Python 标准库实现,负责在每台机器上发现/采集并主动上报到中心 server。
+
+### 配置
+
+```bash
+cp agent/config.example.toml agent/config.toml
+```
+
+编辑 `agent/config.toml`:
+
+- `[host]`: 当前机器的稳定 ID、显示名、平台(`darwin`/`linux`)
+- `[server]`: 中心 server 地址与 `MONITOR_TOKEN`
+- `[collectors]`: 是否开启 systemd / launchd / docker 自动发现
+- `[[processes]]`: 裸进程声明式监控,填写 `pattern` 与日志路径
+- `[frp]`: ECS 上运行 frps 时开启,默认从 `frps.service` 自动发现 admin API 配置
+
+### 本地调试
+
+只采集并打印 JSON:
+
+```bash
+python -m agent.agent -c agent/config.toml --print
+```
+
+采集并上报一次:
+
+```bash
+python -m agent.agent -c agent/config.toml --once
+```
+
+常驻循环上报:
+
+```bash
+python -m agent.agent -c agent/config.toml
+```
+
+### 部署建议
+
+- Mac: 用 launchd 拉起 `python -m agent.agent -c /path/to/agent/config.toml`
+- Linux/ECS: 用 systemd 拉起同一命令
+- `agent/config.toml` 含 token,已被 `.gitignore` 排除,不要提交
