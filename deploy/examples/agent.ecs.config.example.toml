@@ -1,0 +1,25 @@
+interval_seconds = 30
+log_lines = 80
+
+[host]
+id = "ecs"
+name = "ECS"
+platform = "linux"
+
+[server]
+url = "http://127.0.0.1:8800"
+token = "change-me"
+timeout = 8
+
+[collectors]
+systemd = true
+launchd = false
+docker = true
+
+[frp]
+enabled = true
+service_name = "frps.service"
+
+[clash]
+enabled = false
+

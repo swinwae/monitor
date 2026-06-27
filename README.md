@@ -69,3 +69,7 @@ python -m agent.agent -c agent/config.toml
 - Mac: 用 launchd 拉起 `python -m agent.agent -c /path/to/agent/config.toml`
 - Linux/ECS: 用 systemd 拉起同一命令
 - `agent/config.toml` 含 token,已被 `.gitignore` 排除,不要提交
+
+## ECS 部署
+
+ECS 用 GitHub public 仓库 + `git pull` 部署,详见 `deploy/ecs.md`。
