@@ -20,7 +20,7 @@
     <tbody>
     {% for m in h.monitors %}
       <tr class="border-b hover:bg-slate-50">
-        <td class="p-2">{{ {"up":"🟢","down":"🔴","unknown":"⚪"}[m.eff_status] }}</td>
+        <td class="p-2">{{ {"up":"🟢","down":"🔴","unknown":"⚪"}.get(m.eff_status, "❓") }}</td>
         <td><a class="text-blue-600" href="/monitors/{{ m.id }}">{{ m.name }}</a></td>
         <td>{{ m.type }}</td>
         <td class="{{ 'text-red-600 font-bold' if m.restart_count >= 10 else '' }}">{{ m.restart_count }}</td>
