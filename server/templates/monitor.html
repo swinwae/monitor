@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}{{ d.name }} · 明细{% endblock %}
+{% block body %}
+<a href="/hosts/{{ d.host_id }}" class="text-sm text-blue-600">← 返回 {{ d.host_id }}</a>
+<h1 class="text-2xl font-bold my-3">
+  {{ {"up":"🟢","down":"🔴","unknown":"⚪"}.get(d.eff_status, "❓") }}
+  {{ d.display_name or d.name }}
+</h1>
+<div class="grid grid-cols-2 gap-3 mb-6 text-sm">
+  <div class="bg-white rounded shadow p-3">类型:{{ d.type }}</div>
+  <div class="bg-white rounded shadow p-3">重启次数:
+    <b class="{{ 'text-red-600' if d.restart_count >= 10 else '' }}">{{ d.restart_count }}</b></div>
+  <div class="bg-white rounded shadow p-3">启动时间:{{ d.started_at or "—" }}</div>
+  <div class="bg-white rounded shadow p-3">开机自启:{{ "是" if d.enabled else "否" }}</div>
+</div>
+<h2 class="font-semibold mb-2">配置</h2>
+<table class="w-full bg-white rounded shadow text-sm mb-6">
+  {% for k, v in d.meta.items() %}
+  <tr class="border-b"><td class="p-2 text-slate-500 w-40">{{ k }}</td><td class="p-2">{{ v }}</td></tr>
+  {% endfor %}
+</table>
+<h2 class="font-semibold mb-2">最近日志(报错 {{ d.error_count }} 行)</h2>
+<pre class="bg-slate-900 text-slate-100 rounded p-3 text-xs overflow-auto max-h-96">{% for line in log_lines %}<span class="{{ 'text-red-400' if line.error else '' }}">{{ line.text }}</span>
+{% endfor %}</pre>
+{% endblock %}
